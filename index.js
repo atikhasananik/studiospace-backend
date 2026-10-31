@@ -48,11 +48,22 @@ app.get("/getalldata", async (req, res) => {
   res.status(200).send(result);
 });
 
+
+// get single studio data 
 app.get("/singlestudio/:id", async (req, res) => {
   const { id } = req.params;
   const result = await studios.findOne({ _id: new ObjectId(id) });
   res.send(result);
 });
+
+
+// add studio data 
+app.post("/addstudio",async (req,res ) => {
+  const data = req.body
+  const result = await studios.insertOne(data)
+  res.send(result)
+}
+)
 
 // get top rated data
 app.get("/toprateddata", async (req, res) => {
