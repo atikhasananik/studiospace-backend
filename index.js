@@ -71,6 +71,16 @@ app.get("/toprateddata", async (req, res) => {
   res.send(result);
 });
 
+
+app.get('/getmylistings/:email',async (req,res ) => {
+  const {email} = req.params
+  const result = await studios.find({hostEmail: email}).toArray();
+  console.log(email)
+  console.log(result)
+  res.send(result)
+}
+)
+
 app.listen(PORT, () => {
   console.log("server running...");
 });
