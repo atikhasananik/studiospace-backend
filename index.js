@@ -99,6 +99,22 @@ app.post("/addbooking/:email", async (req, res) => {
   const { email } = req.params;
   const data = req.body;
 
+  const timeOverlapVarify = await bookings
+    .find({
+      $and: [
+        { startAt: { $lt: data.endAt } },
+        { endAt: { $gt: data.startAt } },
+        { "studio._id": data.studio._id },
+      ],
+    })
+    .toArray();
+
+  if (timeOverlapVarify.length > 0) {
+    res.status(504).send({
+      mes: "this studio booked in this time so change your booking time.",
+    });
+    return;
+  }
 
   const result = await bookings.insertOne(data);
   res.send(result);
