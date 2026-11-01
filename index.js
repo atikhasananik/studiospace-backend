@@ -26,6 +26,7 @@ const mongodbConnect = async () => {
 const mongoClient = await mongodbConnect();
 const db = mongoClient.db("studiospace");
 const studios = db.collection("studios");
+const bookings = db.collection("bookings");
 
 app.get("/", async (req, res) => {
   res.status(200).send({ status: 200, mes: "server running..." });
@@ -48,22 +49,19 @@ app.get("/getalldata", async (req, res) => {
   res.status(200).send(result);
 });
 
-
-// get single studio data 
+// get single studio data
 app.get("/singlestudio/:id", async (req, res) => {
   const { id } = req.params;
   const result = await studios.findOne({ _id: new ObjectId(id) });
   res.send(result);
 });
 
-
-// add studio data 
-app.post("/addstudio",async (req,res ) => {
-  const data = req.body
-  const result = await studios.insertOne(data)
-  res.send(result)
-}
-)
+// add studio data
+app.post("/addstudio", async (req, res) => {
+  const data = req.body;
+  const result = await studios.insertOne(data);
+  res.send(result);
+});
 
 // get top rated data
 app.get("/toprateddata", async (req, res) => {
@@ -71,15 +69,40 @@ app.get("/toprateddata", async (req, res) => {
   res.send(result);
 });
 
+// get my listing data
+app.get("/getmylistings/:email", async (req, res) => {
+  const { email } = req.params;
+  const result = await studios.find({ hostEmail: email }).toArray();
+  res.send(result);
+});
 
-app.get('/getmylistings/:email',async (req,res ) => {
-  const {email} = req.params
-  const result = await studios.find({hostEmail: email}).toArray();
-  console.log(email)
-  console.log(result)
-  res.send(result)
-}
-)
+// delete studio
+app.delete("/deletestudio/:id", async (req, res) => {
+  const { id } = req.params;
+  const result = await studios.deleteOne({ _id: new ObjectId(id) });
+  res.send(result);
+});
+
+// update studio data
+app.patch("/updatestudio/:id", async (req, res) => {
+  const { id } = req.params;
+  const data = req.body;
+  const result = await studios.updateOne(
+    { _id: new ObjectId(id) },
+    { $set: data },
+  );
+  res.send(result);
+});
+
+// add booking data
+app.post("/addbooking/:email", async (req, res) => {
+  const { email } = req.params;
+  const data = req.body;
+
+
+  const result = await bookings.insertOne(data);
+  res.send(result);
+});
 
 app.listen(PORT, () => {
   console.log("server running...");
