@@ -2,11 +2,7 @@
 
 This repository contains the backend for the StudioSpace application. It is built with Node.js, Express, and MongoDB and provides the API used to manage studios, bookings, and related data.
 
-## What is Koro?
 
-Koro is the internal name of this backend service. In simple terms, Koro is the server-side engine that powers StudioSpace. It handles incoming requests, connects to MongoDB, stores studio information, processes bookings, and returns data to the frontend.
-
-Think of Koro as the brain of the application: it is the part that manages business logic, database operations, and API endpoints behind the scenes.
 
 ## Features
 
@@ -26,6 +22,7 @@ Think of Koro as the brain of the application: it is the part that manages busin
 - MongoDB
 - dotenv
 - CORS
+- JWT
 
 ## Setup
 
