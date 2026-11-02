@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { MongoClient, ObjectId } from "mongodb";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 
 dotenv.config();
 
@@ -32,6 +33,30 @@ app.get("/", async (req, res) => {
   res.status(200).send({ status: 200, mes: "server running..." });
 });
 
+// verify jwtToken
+const verifyToken = async (req, res, next) => {
+  const jwtToken = req.headers.authorization;
+  if (!jwtToken) {
+    return res.status(401).send({ message: "Unauthorized..!" });
+  }
+  const token = jwtToken.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).send({ message: "Unauthorized..!" });
+  }
+
+  const JWKS = createRemoteJWKSet(
+    new URL(`${process.env.CLIENT_API}/api/auth/jwks`),
+  );
+
+  try {
+    const { payload } = await jwtVerify(token, JWKS);
+    next();
+  } catch (error) {
+    return res.status(500).send({ message: "Internal Server Error", error });
+  }
+};
+
 // get all data
 app.get("/getalldata", async (req, res) => {
   const { category } = req.query;
@@ -57,7 +82,7 @@ app.get("/singlestudio/:id", async (req, res) => {
 });
 
 // add studio data
-app.post("/addstudio", async (req, res) => {
+app.post("/addstudio",verifyToken, async (req, res) => {
   const data = req.body;
   const result = await studios.insertOne(data);
   res.send(result);
@@ -70,23 +95,24 @@ app.get("/toprateddata", async (req, res) => {
 });
 
 // get my listing data
-app.get("/getmylistings/:email", async (req, res) => {
+app.get("/getmylistings/:email",verifyToken, async (req, res) => {
   const { email } = req.params;
   const result = await studios.find({ hostEmail: email }).toArray();
   res.send(result);
 });
 
 // delete studio
-app.delete("/deletestudio/:id", async (req, res) => {
+app.delete("/deletestudio/:id", verifyToken, async (req, res) => {
   const { id } = req.params;
   const result = await studios.deleteOne({ _id: new ObjectId(id) });
   res.send(result);
 });
 
 // update studio data
-app.patch("/updatestudio/:id", async (req, res) => {
+app.patch("/updatestudio/:id", verifyToken, async (req, res) => {
   const { id } = req.params;
   const data = req.body;
+
   const result = await studios.updateOne(
     { _id: new ObjectId(id) },
     { $set: data },
@@ -95,7 +121,7 @@ app.patch("/updatestudio/:id", async (req, res) => {
 });
 
 // add booking data
-app.post("/addbooking/:email", async (req, res) => {
+app.post("/addbooking/:email",verifyToken, async (req, res) => {
   const { email } = req.params;
   const data = req.body;
 
@@ -120,7 +146,7 @@ app.post("/addbooking/:email", async (req, res) => {
   res.send(result);
 });
 
-app.get("/mybookings/:email", async (req, res) => {
+app.get("/mybookings/:email",verifyToken, async (req, res) => {
   const { email } = req.params;
 
   const result = await bookings
@@ -132,7 +158,7 @@ app.get("/mybookings/:email", async (req, res) => {
   res.send(result);
 });
 
-app.patch("/updatebookingstatus/:id", async (req, res) => {
+app.patch("/updatebookingstatus/:id",verifyToken, async (req, res) => {
   const { id } = req.params;
   const data = req.body;
   const result = await bookings.updateOne(
@@ -145,7 +171,7 @@ app.patch("/updatebookingstatus/:id", async (req, res) => {
   res.send(result);
 });
 
-app.get("/myorders/:email", async (req, res) => {
+app.get("/myorders/:email",verifyToken, async (req, res) => {
   const { email } = req.params;
 
   const result = await bookings
@@ -166,5 +192,4 @@ app.listen(PORT, () => {
   console.log("server running...");
 });
 
-
-export default app
+export default app;
