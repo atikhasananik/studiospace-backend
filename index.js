@@ -36,6 +36,7 @@ app.get("/", async (req, res) => {
 // verify jwtToken
 const verifyToken = async (req, res, next) => {
   const jwtToken = req.headers.authorization;
+  console.log(jwtToken);
   if (!jwtToken) {
     return res.status(401).send({ message: "Unauthorized..!" });
   }
@@ -95,21 +96,21 @@ app.get("/toprateddata", async (req, res) => {
 });
 
 // get my listing data
-app.get("/getmylistings/:email",verifyToken, async (req, res) => {
+app.get("/getmylistings/:email", verifyToken,async (req, res) => {
   const { email } = req.params;
   const result = await studios.find({ hostEmail: email }).toArray();
   res.send(result);
 });
 
 // delete studio
-app.delete("/deletestudio/:id", verifyToken, async (req, res) => {
+app.delete("/deletestudio/:id",verifyToken, async (req, res) => {
   const { id } = req.params;
   const result = await studios.deleteOne({ _id: new ObjectId(id) });
   res.send(result);
 });
 
 // update studio data
-app.patch("/updatestudio/:id", verifyToken, async (req, res) => {
+app.patch("/updatestudio/:id", verifyToken,async (req, res) => {
   const { id } = req.params;
   const data = req.body;
 
@@ -121,7 +122,7 @@ app.patch("/updatestudio/:id", verifyToken, async (req, res) => {
 });
 
 // add booking data
-app.post("/addbooking/:email",verifyToken, async (req, res) => {
+app.post("/addbooking/:email", verifyToken, async (req, res) => {
   const { email } = req.params;
   const data = req.body;
 
@@ -158,7 +159,7 @@ app.get("/mybookings/:email",verifyToken, async (req, res) => {
   res.send(result);
 });
 
-app.patch("/updatebookingstatus/:id",verifyToken, async (req, res) => {
+app.patch("/updatebookingstatus/:id",verifyToken,async (req, res) => {
   const { id } = req.params;
   const data = req.body;
   const result = await bookings.updateOne(
@@ -184,6 +185,8 @@ app.get("/myorders/:email",verifyToken, async (req, res) => {
       ],
     })
     .toArray();
+
+  console.log(result);
 
   res.send(result);
 });
