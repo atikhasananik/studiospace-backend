@@ -111,12 +111,37 @@ app.post("/addbooking/:email", async (req, res) => {
 
   if (timeOverlapVarify.length > 0) {
     res.status(504).send({
-      mes: "this studio booked in this time so change your booking time.",
+      mes: "This studio is booked in this time. So change your booking time kindly.",
     });
     return;
   }
 
   const result = await bookings.insertOne(data);
+  res.send(result);
+});
+
+app.get("/mybookings/:email", async (req, res) => {
+  const { email } = req.params;
+
+  const result = await bookings
+    .find({
+      bookedby: email,
+    })
+    .toArray();
+
+  res.send(result);
+});
+
+app.patch("/updatebookingstatus/:id", async (req, res) => {
+  const { id } = req.params;
+  const data = req.body;
+  const result = await bookings.updateOne(
+    { _id: new ObjectId(id) },
+    {
+      $set: data,
+    },
+  );
+
   res.send(result);
 });
 
