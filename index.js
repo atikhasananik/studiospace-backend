@@ -145,6 +145,23 @@ app.patch("/updatebookingstatus/:id", async (req, res) => {
   res.send(result);
 });
 
+app.get("/myorders/:email", async (req, res) => {
+  const { email } = req.params;
+
+  const result = await bookings
+    .find({
+      $and: [
+        {
+          "studio.hostEmail": email,
+        },
+        { status: "pending" },
+      ],
+    })
+    .toArray();
+
+  res.send(result);
+});
+
 app.listen(PORT, () => {
   console.log("server running...");
 });
